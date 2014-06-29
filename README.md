@@ -1,4 +1,4 @@
 polymer-components
 ==================
 
-A few test Polymer components
+A few Polymer components I created for various purposes.

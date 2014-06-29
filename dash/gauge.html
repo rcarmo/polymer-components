@@ -1,0 +1,52 @@
+<polymer-element name="dash-gauge" attributes="value">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <!-- set a viewbox for a sane coordinate reference-->
+    <svg viewbox="0 0 190 190">
+      <!-- define a clip path that is the actual gauge outline -->
+      <clipPath id="mask">
+        <!-- hand-crafted (insane, I know) gauge shape using splines -->
+      <path d="m13 140l0 0c-22 -40 -12 -90 23 -118c35 -29 85 -29 120 0c35 29 43 79 20 118l-29 -16l0 0c15 -25 9 -57 -13 -76c-22 -19 -55 -19 -77 0c-23 19 -29 50 -15 76z"/>
+      </clipPath>
+      <g clip-path="url(#mask)">
+        <path d="{{d}}" fill="green"/>
+      </g>
+      <text text-anchor="middle" x="95" y="95">{{value}}%</text>
+    </svg>
+  </template>
+  <script>
+    // Polar to Cartesian conversion
+    function p2c(x, y, r, deg) {
+      var rad = (180+deg) * Math.PI / 180.0;
+      return {
+        x: x + (r * Math.cos(rad)),
+        y: y + (r * Math.sin(rad))
+      };
+    }
+
+    Polymer('dash-gauge', {
+      ready: function() {
+        var radius = 190/2;
+        var center = {x:radius, y:radius};
+        var endAngle   = 209;
+        var startAngle = -29;
+        
+        // Scale value and make sure we don't mess up if it exceeds bounds
+        var value = Math.min(Math.abs(this.value),100);
+        
+        endAngle = (endAngle - startAngle) / 100 * value + startAngle;
+                  
+        var start = p2c(center.x, center.y, radius, startAngle);
+        var end   = p2c(center.x, center.y, radius, endAngle);
+        this.d = [
+            "M", start.x, start.y, 
+            "A", center.x, center.y, 0, 1, 1, end.x, end.y, "L", center.x,center.y 
+        ].join(" ");
+      }
+    });
+  </script>
+</polymer-element>
